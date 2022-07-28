@@ -33,12 +33,13 @@ pub fn lexer(code: String) -> Vec<Token> {
 }
 
 pub fn run(tokens: Vec<Token>) -> String {
-    let mut memory = vec![0; 30000];
+    let mut memory = vec![0; 256]; // 30000 isn't enough for me.
     let mut pointer = 0;
     let mut input = vec![];
     let mut output = String::new();
-    for token in &tokens {
-        match token {
+    let mut index = 0;
+    while index < tokens.len() {
+        match tokens[index] {
             Token::MoveRight => pointer += 1,
             Token::MoveLeft => pointer -= 1,
             Token::Increment => memory[pointer] += 1,
@@ -52,30 +53,39 @@ pub fn run(tokens: Vec<Token>) -> String {
                 memory[pointer] = input_value;
             }
             Token::JumpForward => {
-                if memory[pointer] == 0 {
-                    let mut depth = 1;
-                    while depth > 0 {
-                        match token {
-                            Token::JumpForward => depth += 1,
-                            Token::JumpBackward => depth -= 1,
-                            _ => {}
+                match memory[pointer] {
+                    0 => {
+                        let mut depth = 1;
+                        while depth > 0 {
+                            match tokens[index + 1] {
+                                Token::JumpForward => depth += 1,
+                                Token::JumpBackward => depth -= 1,
+                                _ => {}
+                            }
+                            index += 1;
                         }
-                    }
+                    },
+                    _ => {}
                 }
             }
             Token::JumpBackward => {
-                if memory[pointer] != 0 {
-                    let mut depth = 1;
-                    while depth > 0 {
-                        match token {
-                            Token::JumpForward => depth -= 1,
-                            Token::JumpBackward => depth += 1,
-                            _ => {}
+                match memory[pointer] {
+                    0 => {},
+                    _ => {
+                        let mut depth = 1;
+                        while depth > 0 {
+                            match tokens[index - 1] {
+                                Token::JumpForward => depth -= 1,
+                                Token::JumpBackward => depth += 1,
+                                _ => {}
+                            }
+                            index -= 1;
                         }
-                    }
+                    },
                 }
             }
         }
+        index += 1;
     }
 
     output
