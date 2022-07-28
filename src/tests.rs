@@ -23,3 +23,48 @@ mod lexer_tests {
         assert_eq!(tokens[7], bf::Token::JumpBackward);
     }
 }
+
+// ここ本当はもっとしっかり書いた方がいい
+#[cfg(test)]
+mod run_tests {
+    use crate::bf;
+
+    #[test]
+    fn run_test_hello_world() {
+        // hello world
+        let code = "++++++++++
+        [
+            >+++++++
+            >++++++++++
+            >+++++++++++
+            >+++
+            >+++++++++
+            >+
+            <<<<<<-
+        ]
+        >++.
+        >+.
+        >--..
+        +++.
+        >++.
+        >---.
+        <<.
+        +++.
+        ------.
+        <-.
+        >>+.
+        >>.";
+        let tokens = bf::lexer(code.to_string());
+        let output = bf::run(tokens);
+        assert_eq!(output, "Hello World!\n");
+    }
+
+    #[test]
+    fn run_test_takurinton() {
+        let code = "+++++++++[>++++++++++++<-]>++++++++.<+++++++++[>--<-]>-.<+++++++++[>+<-]>+.<+++++++++[>+<-]>+.---.<+++++++++[>-<-]>.+++++.++++++.-----.-.";
+        let tokens = bf::lexer(code.to_string());
+        let output = bf::run(tokens);
+        assert_eq!(output, "takurinton");
+    }
+}
+
