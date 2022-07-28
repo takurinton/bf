@@ -2,6 +2,7 @@ mod bf;
 mod tests;
 
 fn main() { 
+    // print "Hello World!\n"
     let code = "++++++++++
     [
         >+++++++
