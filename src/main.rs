@@ -3,6 +3,7 @@ mod tests;
 
 fn main() { 
     let code = "+++++++++[>++++++++>+++++++++++>+++>+<<<<-]>.>++.+++++++..+++.>+++++.<<+++++++++++++++.>.+++.------.--------.>+.>+.";
-    let result = bf::run(code.to_string());
-    println!("{:?}", result);
+    let tokens = bf::lexer(code.to_string());
+    let output = bf::run(tokens);
+    println!("{:?}", output);
 }

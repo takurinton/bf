@@ -32,8 +32,7 @@ pub fn lexer(code: String) -> Vec<Token> {
     code.chars().map(|c| Token::from_str(c)).filter(|c| c.is_some()).map(|c| c.unwrap()).collect()
 }
 
-pub fn run(code: String) -> String {
-    let tokens = lexer(code);
+pub fn run(tokens: Vec<Token>) -> String {
     let mut memory = vec![0; 30000];
     let mut pointer = 0;
     let mut input = vec![];
@@ -53,33 +52,27 @@ pub fn run(code: String) -> String {
                 memory[pointer] = input_value;
             }
             Token::JumpForward => {
-                let mut depth = 1;
-                let mut i = 1;
                 if memory[pointer] == 0 {
+                    let mut depth = 1;
                     while depth > 0 {
-                        match tokens[i] {
+                        match token {
                             Token::JumpForward => depth += 1,
                             Token::JumpBackward => depth -= 1,
                             _ => {}
                         }
-                        i += 1;
                     }
-                    pointer = i;
                 }
             }
             Token::JumpBackward => {
-                let mut depth = 1;
-                let mut i = tokens.len() - 1;
                 if memory[pointer] != 0 {
+                    let mut depth = 1;
                     while depth > 0 {
-                        match tokens[i] {
+                        match token {
                             Token::JumpForward => depth -= 1,
                             Token::JumpBackward => depth += 1,
                             _ => {}
                         }
-                        i -= 1;
                     }
-                    pointer = i;
                 }
             }
         }
