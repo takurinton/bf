@@ -37,8 +37,8 @@ pub fn run(code: String) -> String {
     let mut memory = vec![0; 30000];
     let mut pointer = 0;
     let mut input = vec![];
-    let mut output = vec![];
-    for token in tokens {
+    let mut output = String::new();
+    for token in &tokens {
         match token {
             Token::MoveRight => pointer += 1,
             Token::MoveLeft => pointer -= 1,
@@ -53,13 +53,37 @@ pub fn run(code: String) -> String {
                 memory[pointer] = input_value;
             }
             Token::JumpForward => {
-                // TODO
+                let mut depth = 1;
+                let mut i = 1;
+                if memory[pointer] == 0 {
+                    while depth > 0 {
+                        match tokens[i] {
+                            Token::JumpForward => depth += 1,
+                            Token::JumpBackward => depth -= 1,
+                            _ => {}
+                        }
+                        i += 1;
+                    }
+                    pointer = i;
+                }
             }
             Token::JumpBackward => {
-                // TODO
+                let mut depth = 1;
+                let mut i = tokens.len() - 1;
+                if memory[pointer] != 0 {
+                    while depth > 0 {
+                        match tokens[i] {
+                            Token::JumpForward => depth -= 1,
+                            Token::JumpBackward => depth += 1,
+                            _ => {}
+                        }
+                        i -= 1;
+                    }
+                    pointer = i;
+                }
             }
         }
     }
 
-    output.iter().map(|c| c.to_string()).collect()
+    output
 }
