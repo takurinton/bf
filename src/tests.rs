@@ -25,20 +25,20 @@ mod lexer_tests {
 
     #[test]
     fn test_lexer_unexpected_token() {
+        // code containts an unexpected token
         let code = "abc";
         let tokens = bf::lexer(code.to_string());
         assert_eq!(tokens.is_err(), true);
     }
 }
 
-// ここ本当はもっとしっかり書いた方がいい
 #[cfg(test)]
 mod run_tests {
     use crate::bf;
 
     #[test]
     fn run_test_hello_world() {
-        // "Hello World!\n" include "/n"
+        // "Hello World!\n", code includes "/n"
         let code = "++++++++++
         [
             >+++++++
@@ -68,7 +68,7 @@ mod run_tests {
 
     #[test]
     fn run_test_takurinton() {
-        // "takurinton\n" execlude "/n"
+        // "takurinton\n", code execludes "/n"
         let code = "+++++++++[>++++++++++++<-]>++++++++.<+++++++++[>--<-]>-.<+++++++++[>+<-]>+.<+++++++++[>+<-]>+.---.<+++++++++[>-<-]>.+++++.++++++.-----.-.";
         let tokens = bf::lexer(code.to_string());
         let output = bf::run(tokens);
@@ -80,6 +80,16 @@ mod run_tests {
         // [...Array(257)].map(_ => ">").join("")
         // overflow maximum pointer
         let code = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+        let tokens = bf::lexer(code.to_string());
+        let output = bf::run(tokens);
+        // println!("{:?}", output.unwrap());
+        assert_eq!(output.is_err(), true);
+    }
+
+    #[test]
+    fn test_run_move_left_underflow() {
+        // underflow inumum pointer
+        let code = "<<";
         let tokens = bf::lexer(code.to_string());
         let output = bf::run(tokens);
         // println!("{:?}", output.unwrap());
