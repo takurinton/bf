@@ -60,7 +60,7 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
     let tokens = tokens.unwrap();
     while index < tokens.len() {
         match tokens[index] {
-            Token::MoveRight => match pointer + 1 {
+            Token::MoveRight => match pointer {
                 256 => return Err(Error::RuntimeError),
                 _ => pointer += 1,
             },
@@ -68,7 +68,7 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
                 0 => return Err(Error::RuntimeError),
                 _ => pointer -= 1,
             },
-            Token::Increment => match pointer + 1 {
+            Token::Increment => match pointer {
                 256 => return Err(Error::RuntimeError),
                 _ => memory[pointer] += 1,
             },
