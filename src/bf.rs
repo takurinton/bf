@@ -30,13 +30,17 @@ impl Token {
 #[derive(Debug, PartialEq)]
 pub enum Error {
     RuntimeError,
-    LexerError,
     UnknownTokenError,
 }
 
 pub fn lexer(code: String) -> Result<Vec<Token>, Error> {
     let tokens = code
+        .trim()
         .chars()
+        .filter(|c| match c {
+            ' ' | '\n' | '\r' | '\t' => false,
+            _ => true,
+        })
         .map(|character| {
             Ok(match Token::from_str(character) {
                 Some(token) => token,
@@ -47,7 +51,6 @@ pub fn lexer(code: String) -> Result<Vec<Token>, Error> {
     Ok(tokens)
 }
 
-// もうちょいまともな実装はできないのか！おい！
 pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
     let mut memory = vec![0; 256]; // 30000 isn't enough for me.
     let mut pointer = 0;
@@ -57,26 +60,46 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
     let tokens = tokens.unwrap();
     while index < tokens.len() {
         match tokens[index] {
-            Token::MoveRight => pointer += 1,
-            Token::MoveLeft => pointer -= 1,
-            Token::Increment => memory[pointer] += 1,
-            Token::Decrement => memory[pointer] -= 1,
+            Token::MoveRight => match pointer + 1 {
+                256 => return Err(Error::RuntimeError),
+                _ => pointer += 1,
+            },
+            Token::MoveLeft => match pointer + 1 {
+                0 => return Err(Error::RuntimeError),
+                _ => pointer -= 1,
+            },
+            Token::Increment => match pointer + 1 {
+                256 => return Err(Error::RuntimeError),
+                _ => memory[pointer] += 1,
+            },
+            Token::Decrement => match pointer + 1 {
+                0 => return Err(Error::RuntimeError),
+                _ => memory[pointer] -= 1,
+            },
             Token::Output => {
                 let value = memory[pointer] as u8 as char;
-                output.push(value);
+                match value {
+                    // TODO: 何があったらエラー？
+                    _ => output.push(value),
+                }
             }
             Token::Input => {
                 let input_value = input.pop().unwrap();
-                memory[pointer] = input_value;
+                match input_value {
+                    _ => memory[pointer] = input_value,
+                }
             }
             Token::JumpForward => match memory[pointer] {
                 0 => {
                     let mut depth = 1;
                     while depth > 0 {
-                        match tokens[index + 1] {
-                            Token::JumpForward => depth += 1,
-                            Token::JumpBackward => depth -= 1,
-                            _ => {}
+                        match index + 1 {
+                            256 => return Err(Error::RuntimeError),
+                            _ => match tokens[index + 1] {
+                                Token::JumpForward => depth += 1,
+                                Token::JumpBackward => depth -= 1,
+                                _ => (),
+                            },
                         }
                         index += 1;
                     }
@@ -88,10 +111,13 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
                 _ => {
                     let mut depth = 1;
                     while depth > 0 {
-                        match tokens[index - 1] {
-                            Token::JumpForward => depth -= 1,
-                            Token::JumpBackward => depth += 1,
-                            _ => {}
+                        match index - 1 {
+                            0 => return Err(Error::RuntimeError),
+                            _ => match tokens[index - 1] {
+                                Token::JumpForward => depth -= 1,
+                                Token::JumpBackward => depth += 1,
+                                _ => (),
+                            },
                         }
                         index -= 1;
                     }
@@ -100,5 +126,6 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
         }
         index += 1;
     }
+
     Ok(output)
 }
