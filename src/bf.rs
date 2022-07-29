@@ -92,14 +92,15 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
             Token::JumpForward => match memory[pointer] {
                 0 => {
                     let mut depth = 1;
+                    let _max = tokens.len() - 1;
                     while depth > 0 {
                         match index + 1 {
-                            256 => return Err(Error::RuntimeError),
+                            _max => return Err(Error::RuntimeError),
                             _ => match tokens[index + 1] {
-                                Token::JumpForward => depth += 1,
-                                Token::JumpBackward => depth -= 1,
-                                _ => (),
-                            },
+                                    Token::JumpForward => depth += 1,
+                                    Token::JumpBackward => depth -= 1,
+                                    _ => (),
+                                },
                         }
                         index += 1;
                     }
