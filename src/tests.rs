@@ -38,7 +38,7 @@ mod run_tests {
 
     #[test]
     fn run_test_hello_world() {
-        // hello world
+        // "Hello World!\n" include "/n"
         let code = "++++++++++
         [
             >+++++++
@@ -68,9 +68,39 @@ mod run_tests {
 
     #[test]
     fn run_test_takurinton() {
+        // "takurinton\n" execlude "/n"
         let code = "+++++++++[>++++++++++++<-]>++++++++.<+++++++++[>--<-]>-.<+++++++++[>+<-]>+.<+++++++++[>+<-]>+.---.<+++++++++[>-<-]>.+++++.++++++.-----.-.";
         let tokens = bf::lexer(code.to_string());
         let output = bf::run(tokens);
         assert_eq!(output.unwrap(), "takurinton");
+    }
+
+    #[test]
+    fn test_run_move_right_overflow() {
+        // [...Array(257)].map(_ => ">").join("")
+        // overflow maximum pointer
+        let code = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+        let tokens = bf::lexer(code.to_string());
+        let output = bf::run(tokens);
+        // println!("{:?}", output.unwrap());
+        assert_eq!(output.is_err(), true);
+    }
+
+    #[test]
+    fn test_run_not_close_jump_forward() {
+        // jump forward without close token when pointer is 0
+        let code = "[[[[";
+        let tokens = bf::lexer(code.to_string());
+        let output = bf::run(tokens);
+        assert_eq!(output.is_err(), true);
+    }
+
+    #[test]
+    fn test_run_not_open_jump_backward() {
+        // jump backward without open token when pointer is not 0
+        let code = "+++]]]]";
+        let tokens = bf::lexer(code.to_string());
+        let output = bf::run(tokens);
+        assert_eq!(output.is_err(), true);
     }
 }
