@@ -1,5 +1,4 @@
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     MoveRight,
     MoveLeft,
@@ -8,37 +7,44 @@ pub enum Token {
     Output,
     Input,
     JumpForward,
-    JumpBackward
+    JumpBackward,
 }
 
 impl Token {
     fn from_str(character: char) -> Option<Self> {
-         match character {
+        match character {
             // https://ja.wikipedia.org/wiki/Brainfuck#Brainfuck%E3%81%AE%E8%A8%80%E8%AA%9E%E4%BB%95%E6%A7%98
-            '>' => Some(Token::MoveRight),    // Move the pointer to the right.
-            '<' => Some(Token::MoveLeft),     // Move the pointer to the left.
-            '+' => Some(Token::Increment),    // Increment the value at the pointer.
-            '-' => Some(Token::Decrement),    // Decrement the value at the pointer.
-            '.' => Some(Token::Output),       // Output the value at the pointer.
-            ',' => Some(Token::Input),        // Input a value at the pointer.
-            '[' => Some(Token::JumpForward),  // Jump forward to the matching ] if the value at the pointer is zero.
+            '>' => Some(Token::MoveRight), // Move the pointer to the right.
+            '<' => Some(Token::MoveLeft),  // Move the pointer to the left.
+            '+' => Some(Token::Increment), // Increment the value at the pointer.
+            '-' => Some(Token::Decrement), // Decrement the value at the pointer.
+            '.' => Some(Token::Output),    // Output the value at the pointer.
+            ',' => Some(Token::Input),     // Input a value at the pointer.
+            '[' => Some(Token::JumpForward), // Jump forward to the matching ] if the value at the pointer is zero.
             ']' => Some(Token::JumpBackward), // Jump backward to the matching [ if the value at the pointer is nonzero.
-            _ => None                         // Ignore other characters.
+            _ => None,                        // Ignore other characters.
         }
     }
 }
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Error {
     RuntimeError,
     LexerError,
-    UnknownTokenError
+    UnknownTokenError,
 }
 
 pub fn lexer(code: String) -> Result<Vec<Token>, Error> {
-    let tokens = code.chars().map(|c| Token::from_str(c)).filter(|c| c.is_some()).map(|c| c.unwrap());
-    Ok(tokens.collect())
+    let tokens = code
+        .chars()
+        .map(|character| {
+            Ok(match Token::from_str(character) {
+                Some(token) => token,
+                None => return Err(Error::UnknownTokenError),
+            })
+        })
+        .collect::<Result<Vec<Token>, Error>>()?;
+    Ok(tokens)
 }
 
 // もうちょいまともな実装はできないのか！おい！
@@ -63,38 +69,34 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
                 let input_value = input.pop().unwrap();
                 memory[pointer] = input_value;
             }
-            Token::JumpForward => {
-                match memory[pointer] {
-                    0 => {
-                        let mut depth = 1;
-                        while depth > 0 {
-                            match tokens[index + 1] {
-                                Token::JumpForward => depth += 1,
-                                Token::JumpBackward => depth -= 1,
-                                _ => {}
-                            }
-                            index += 1;
+            Token::JumpForward => match memory[pointer] {
+                0 => {
+                    let mut depth = 1;
+                    while depth > 0 {
+                        match tokens[index + 1] {
+                            Token::JumpForward => depth += 1,
+                            Token::JumpBackward => depth -= 1,
+                            _ => {}
                         }
-                    },
-                    _ => {}
+                        index += 1;
+                    }
                 }
-            }
-            Token::JumpBackward => {
-                match memory[pointer] {
-                    0 => {},
-                    _ => {
-                        let mut depth = 1;
-                        while depth > 0 {
-                            match tokens[index - 1] {
-                                Token::JumpForward => depth -= 1,
-                                Token::JumpBackward => depth += 1,
-                                _ => {}
-                            }
-                            index -= 1;
+                _ => {}
+            },
+            Token::JumpBackward => match memory[pointer] {
+                0 => {}
+                _ => {
+                    let mut depth = 1;
+                    while depth > 0 {
+                        match tokens[index - 1] {
+                            Token::JumpForward => depth -= 1,
+                            Token::JumpBackward => depth += 1,
+                            _ => {}
                         }
-                    },
+                        index -= 1;
+                    }
                 }
-            }
+            },
         }
         index += 1;
     }

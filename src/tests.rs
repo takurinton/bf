@@ -3,16 +3,16 @@ mod lexer_tests {
     use crate::bf;
 
     #[test]
-    fn lexer_length() {
+    fn test_lexer_length() {
         let code = "><+-.,[]";
-        let tokens = bf::lexer(code.to_string());
+        let tokens = bf::lexer(code.to_string()).unwrap();
         assert_eq!(tokens.len(), 8);
     }
 
     #[test]
-    fn lexer() {
+    fn test_lexer() {
         let code = "><+-.,[]";
-        let tokens = bf::lexer(code.to_string());
+        let tokens = bf::lexer(code.to_string()).unwrap();
         assert_eq!(tokens[0], bf::Token::MoveRight);
         assert_eq!(tokens[1], bf::Token::MoveLeft);
         assert_eq!(tokens[2], bf::Token::Increment);
@@ -21,6 +21,13 @@ mod lexer_tests {
         assert_eq!(tokens[5], bf::Token::Input);
         assert_eq!(tokens[6], bf::Token::JumpForward);
         assert_eq!(tokens[7], bf::Token::JumpBackward);
+    }
+
+    #[test]
+    fn test_lexer_unexpected_token() {
+        let code = "abc";
+        let tokens = bf::lexer(code.to_string());
+        assert_eq!(tokens.is_err(), true);
     }
 }
 
@@ -56,7 +63,7 @@ mod run_tests {
         >>.";
         let tokens = bf::lexer(code.to_string());
         let output = bf::run(tokens);
-        assert_eq!(output, "Hello World!\n");
+        assert_eq!(output.unwrap(), "Hello World!\n");
     }
 
     #[test]
@@ -64,7 +71,6 @@ mod run_tests {
         let code = "+++++++++[>++++++++++++<-]>++++++++.<+++++++++[>--<-]>-.<+++++++++[>+<-]>+.<+++++++++[>+<-]>+.---.<+++++++++[>-<-]>.+++++.++++++.-----.-.";
         let tokens = bf::lexer(code.to_string());
         let output = bf::run(tokens);
-        assert_eq!(output, "takurinton");
+        assert_eq!(output.unwrap(), "takurinton");
     }
 }
-
