@@ -27,8 +27,12 @@ fn main() {
     >>.";
     let tokens = bf::lexer(code.to_string());
     let output = bf::run(tokens);
-    match output {
-        Ok(output) => println!("{}", output),
-        Err(error) => println!("{:?}", error),
-    }
+    let result = match output {
+        Ok(output) => output,
+        Err(error) => {
+            println!("{:?}", error);
+            return;
+        }       
+    };
+    println!("{}", result);
 }
