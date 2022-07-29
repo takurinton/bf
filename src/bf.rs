@@ -28,16 +28,27 @@ impl Token {
     }
 }
 
-pub fn lexer(code: String) -> Vec<Token> {
-    code.chars().map(|c| Token::from_str(c)).filter(|c| c.is_some()).map(|c| c.unwrap()).collect()
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum Error {
+    RuntimeError,
+    LexerError,
+    UnknownTokenError
 }
 
-pub fn run(tokens: Vec<Token>) -> String {
+pub fn lexer(code: String) -> Result<Vec<Token>, Error> {
+    let tokens = code.chars().map(|c| Token::from_str(c)).filter(|c| c.is_some()).map(|c| c.unwrap());
+    Ok(tokens.collect())
+}
+
+// もうちょいまともな実装はできないのか！おい！
+pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
     let mut memory = vec![0; 256]; // 30000 isn't enough for me.
     let mut pointer = 0;
     let mut input = vec![];
     let mut output = String::new();
     let mut index = 0;
+    let tokens = tokens.unwrap();
     while index < tokens.len() {
         match tokens[index] {
             Token::MoveRight => pointer += 1,
@@ -87,6 +98,5 @@ pub fn run(tokens: Vec<Token>) -> String {
         }
         index += 1;
     }
-
-    output
+    Ok(output)
 }
