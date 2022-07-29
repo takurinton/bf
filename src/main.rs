@@ -29,6 +29,6 @@ fn main() {
     let output = bf::run(tokens);
     match output {
         Ok(output) => println!("{}", output),
-        Err(_) => println!("error"),
+        Err(error) => println!("{:?}", error),
     }
 }

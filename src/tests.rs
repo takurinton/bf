@@ -28,7 +28,7 @@ mod lexer_tests {
         // code containts an unexpected token
         let code = "abc";
         let tokens = bf::lexer(code.to_string());
-        assert_eq!(tokens.is_err(), true);
+        assert_eq!(tokens, Err(bf::Error::UnknownTokenError));
     }
 }
 
@@ -82,8 +82,7 @@ mod run_tests {
         let code = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
         let tokens = bf::lexer(code.to_string());
         let output = bf::run(tokens);
-        // println!("{:?}", output.unwrap());
-        assert_eq!(output.is_err(), true);
+        assert_eq!(output, Err(bf::Error::RuntimeError));
     }
 
     #[test]
@@ -92,8 +91,23 @@ mod run_tests {
         let code = "<<";
         let tokens = bf::lexer(code.to_string());
         let output = bf::run(tokens);
-        // println!("{:?}", output.unwrap());
-        assert_eq!(output.is_err(), true);
+        assert_eq!(output, Err(bf::Error::RuntimeError));
+    }
+
+    #[test]
+    fn test_run_increment_memory_overflow() {
+        let code = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>+";
+        let tokens = bf::lexer(code.to_string());
+        let output = bf::run(tokens);
+        assert_eq!(output, Err(bf::Error::RuntimeError));
+    }
+
+    #[test]
+    fn test_run_decrement_memory_overflow() {
+        let code = ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>-";
+        let tokens = bf::lexer(code.to_string());
+        let output = bf::run(tokens);
+        assert_eq!(output, Err(bf::Error::RuntimeError));
     }
 
     #[test]
@@ -102,7 +116,7 @@ mod run_tests {
         let code = "[[[[";
         let tokens = bf::lexer(code.to_string());
         let output = bf::run(tokens);
-        assert_eq!(output.is_err(), true);
+        assert_eq!(output, Err(bf::Error::RuntimeError));
     }
 
     #[test]
@@ -111,6 +125,6 @@ mod run_tests {
         let code = "+++]]]]";
         let tokens = bf::lexer(code.to_string());
         let output = bf::run(tokens);
-        assert_eq!(output.is_err(), true);
+        assert_eq!(output, Err(bf::Error::RuntimeError));
     }
 }
