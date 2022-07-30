@@ -91,17 +91,17 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
             Token::JumpForward => match memory[pointer] {
                 0 => {
                     let mut depth = 1;
-                    let _max = tokens.len() - 1;
+                    let max = tokens.len();
                     while depth > 0 {
-                        match index + 1 {
-                            _max => return Err(Error::RuntimeError),
-                            _ => match tokens[index + 1] {
-                                Token::JumpForward => depth += 1,
-                                Token::JumpBackward => depth -= 1,
-                                _ => (),
-                            },
-                        }
                         index += 1;
+                        if index >= max {
+                            return Err(Error::RuntimeError);
+                        }
+                        match tokens[index] {
+                            Token::JumpForward => depth += 1,
+                            Token::JumpBackward => depth -= 1,
+                            _ => (),
+                        }
                     }
                 }
                 _ => {}
@@ -111,15 +111,15 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
                 _ => {
                     let mut depth = 1;
                     while depth > 0 {
-                        match index - 1 {
+                        index -= 1;
+                        match index {
                             0 => return Err(Error::RuntimeError),
-                            _ => match tokens[index - 1] {
+                            _ => match tokens[index] {
                                 Token::JumpForward => depth -= 1,
                                 Token::JumpBackward => depth += 1,
                                 _ => (),
                             },
                         }
-                        index -= 1;
                     }
                 }
             },
