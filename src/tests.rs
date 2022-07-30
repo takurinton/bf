@@ -76,6 +76,33 @@ mod run_tests {
     }
 
     #[test]
+    fn run_test_add_number() {
+        let code = "+>++><<
+        [->>>+<<<]
+        >>>[-<+<<+>>>]<<
+        [->>+<<]
+        >>[-<+<+>>]<
+        ++++++++++++++++++++++++++++++++++++++++++++++++.";
+        let tokens = bf::lexer(code.to_string());
+        let output = bf::run(tokens);
+        assert_eq!(output.unwrap(), "3");
+    }
+
+    #[test]
+    fn run_test_multiplication_number() {
+        let code = "++++>++><<
+        [-
+          >[->>+<<]
+          >>[-<+<+>>]
+          <<<
+        ]>>
+        ++++++++++++++++++++++++++++++++++++++++++++++++.";
+        let tokens = bf::lexer(code.to_string());
+        let output = bf::run(tokens);
+        assert_eq!(output.unwrap(), "8");
+    }
+
+    #[test]
     fn test_run_move_right_overflow() {
         // [...Array(257)].map(_ => ">").join("")
         // overflow maximum pointer
