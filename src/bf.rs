@@ -72,7 +72,7 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
                 256 => return Err(Error::RuntimeError),
                 _ => memory[pointer] += 1,
             },
-            Token::Decrement => match pointer {
+            Token::Decrement => match pointer + 1 {
                 0 => return Err(Error::RuntimeError),
                 _ => memory[pointer] -= 1,
             },
