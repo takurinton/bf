@@ -79,7 +79,6 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
             Token::Output => {
                 let value = memory[pointer] as u8 as char;
                 match value {
-                    // TODO: 何があったらエラー？
                     _ => output.push(value),
                 }
             }
@@ -97,10 +96,10 @@ pub fn run(tokens: Result<Vec<Token>, Error>) -> Result<String, Error> {
                         match index + 1 {
                             _max => return Err(Error::RuntimeError),
                             _ => match tokens[index + 1] {
-                                    Token::JumpForward => depth += 1,
-                                    Token::JumpBackward => depth -= 1,
-                                    _ => (),
-                                },
+                                Token::JumpForward => depth += 1,
+                                Token::JumpBackward => depth -= 1,
+                                _ => (),
+                            },
                         }
                         index += 1;
                     }

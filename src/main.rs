@@ -32,7 +32,7 @@ fn main() {
         Err(error) => {
             println!("{:?}", error);
             return;
-        }       
+        }
     };
     println!("{}", result);
 }
