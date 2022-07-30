@@ -22,7 +22,7 @@ impl Token {
             ',' => Some(Token::Input),     // Input a value at the pointer.
             '[' => Some(Token::JumpForward), // Jump forward to the matching ] if the value at the pointer is zero.
             ']' => Some(Token::JumpBackward), // Jump backward to the matching [ if the value at the pointer is nonzero.
-            _ => None,                        // Ignore other characters.
+            _ => None,                        // This is treated as an unexpected token inside the lexer
         }
     }
 }
